@@ -1,0 +1,98 @@
+var express = require('express');
+var router = express.Router();
+var slq=require('mssql/msnodesqlv8');
+
+
+let config={
+  user:'TNHMAIN',
+  password:'MAINTNH',
+  server:'192.168.1.205',
+  database:'TRNINV',
+  driver:'msnodesqlv8',
+  options:{
+    trustedConnection:true
+  }
+};
+
+slq.connect(config,(err,res)=>{
+if(err){
+console.log(err);
+}else{
+
+  console.log("Success");
+}
+//Create Obbject For Request
+
+var request=new slq.Request();
+
+request.query("select * from VBUSRMST",(req,res)=>{
+  if(err){
+console.log(err);
+  }else{
+    // var partyName=(res.recordset[1].partName);
+    // var partyPass=(res.recordset[1].partyPass);
+    // console.log((res.recordset));
+// console.log(res)
+    var result1=(res.recordset[0].USERNAME);
+    var allData=(res.recordset);
+
+    var result2 = allData.map((person) => ({ value: person.USERNAME,text:person.PASS }));
+    console.log(result2)
+    const john = allData.find(person1 => person1.CODE === '000001');
+    if(john){
+      if(john.PASS=='TNH@123'){
+        console.log("Welcome");
+      }else{
+        console.log("Password is incorrect");
+      }
+    }
+console.log(john);
+
+//    var collectData=result.map((key)=>{
+// return key;
+//    });
+console.log(result1);
+
+
+  }
+})
+
+});
+
+
+var users=[
+  {
+    email:'abc@gmail.com',
+    password:'1234'
+  }
+]
+
+/* GET home page. */
+router.get('/', function(req, res, next) {
+  res.send("Welcome to Backend Server");
+});
+
+
+
+
+router.post('/login',(req,res)=>{
+  let result=users.find(user=>user.email==req.body.userName);
+if(result){
+  if(result.password==req.body.userPass){
+    res.status(200).send({
+      message:'Success Fully User is Valid'
+    })
+  }else{
+    res.status(203).send({
+      message:'Password is incorrect'
+    })
+  }
+}else{
+  res.status(204).send({
+    message:'User Not Found'
+  })
+}
+  });
+  
+
+module.exports = router;
